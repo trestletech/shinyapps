@@ -103,26 +103,8 @@ deployApp <- function(appDir = getwd(),
                       application$id, 
                       "...\n", sep=""))
   task <- lucid$deployApplication(application$id, bundle$id)
-  lucid$waitForTask(task$task_id, quiet)
-  displayStatus(paste("Application successfully deployed to ", 
-                      application$url,
-                      "\n", sep=""))
-    
-  # save the deployment info for subsequent updates
-  saveDeployment(appDir, 
-                 target$appName, 
-                 target$account, 
-                 bundle$id,
-                 application$url)
-    
-  # launch the browser if requested
-  if (isTRUE(launch.browser))
-    utils::browseURL(application$url)
-  else if (is.function(launch.browser))
-    launch.browser(application$url)
+  return(task$task_id)
   
-  # successful deployment!
-  invisible(TRUE)
 }
 
 # calculate the deployment target based on the passed parameters and 

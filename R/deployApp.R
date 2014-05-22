@@ -52,24 +52,20 @@
 #' @seealso \code{\link{applications}}, \code{\link{terminateApp}}, and
 #'   \code{\link{scaleApp}}
 #' @export
-deployApp <- function(appDir = getwd(), 
+deployApp <- function(bundlePath = NULL, 
                       appName = NULL, 
                       account = NULL,
                       upload = TRUE,
                       launch.browser = getOption("shinyapps.launch.browser",
                                                  interactive()),
                       quiet = FALSE) {
-   
-  if (!isStringParam(appDir))
-    stop(stringParamErrorMessage("appDir"))
+  appDir <- "." 
+  
+  if (!isStringParam(bundlePath))
+    stop(stringParamErrorMessage("bundlePath"))
   
   if (!is.null(appName) && !isStringParam(appName))
     stop(stringParamErrorMessage("appName"))
-  
-  # normalize appDir path and ensure it exists
-  appDir <- normalizePath(appDir, mustWork = FALSE)
-  if (!file.exists(appDir) || !file.info(appDir)$isdir)
-    stop(appDir, " is not a valid directory")
     
   # functions to show status (respects quiet param)
   displayStatus <- displayStatus(quiet)
@@ -90,7 +86,6 @@ deployApp <- function(appDir = getwd(),
   if (upload) {
     # create, and upload the bundle
     withStatus("Uploading application bundle", {
-      bundlePath <- bundleApp(appDir)
       bundle <- lucid$uploadApplication(application$id, bundlePath)
     })
   } else {
@@ -103,7 +98,7 @@ deployApp <- function(appDir = getwd(),
                       application$id, 
                       "...\n", sep=""))
   task <- lucid$deployApplication(application$id, bundle$id)
-  return(task$task_id)
+  return(list(task = task$task_id, app=application$id, name=appName))
   
 }
 
